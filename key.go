@@ -2,6 +2,8 @@ package cryptu
 
 import "fmt"
 
+// TODO: need *base64.Encoding struct - using 2 different encodings
+
 // Key represents the symmetric encryption key used in
 // operations by this package.
 type Key interface {
