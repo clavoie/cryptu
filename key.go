@@ -25,7 +25,9 @@ func NewStrKey(str string) (Key, error) {
 func NewKey(val []byte) (Key, error) {
 	switch len(val) {
 	case 16:
+		fallthrough
 	case 24:
+		fallthrough
 	case 32:
 		return key(val), nil
 	}
