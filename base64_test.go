@@ -39,7 +39,7 @@ func TestBase64(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if encrypted == base64Secret {
+		if encrypted == base64Secret || encrypted == secret {
 			t.Fatal("Secret is not encrypted")
 		}
 
@@ -60,6 +60,27 @@ func TestBase64(t *testing.T) {
 
 		if err == nil {
 			t.Fatal("Was expecting error")
+		}
+	})
+	t.Run("DecryptNotEncrypted", func(t *testing.T) {
+		base64Str := encoding.Encoding().EncodeToString([]byte("not encrypted"))
+		_, err := encoder.Decrypt(base64Str)
+
+		if err == nil {
+			t.Fatal("Was expecting error")
+		}
+	})
+	t.Run("Decrypt", func(t *testing.T) {
+		encryptedStr, err := encoder.Encrypt(secret)
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		actualSecret, err := encoder.Decrypt(encryptedStr)
+
+		if actualSecret != secret {
+			t.Fatal(actualSecret, secret)
 		}
 	})
 }
