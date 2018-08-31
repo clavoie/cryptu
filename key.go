@@ -1,40 +1,34 @@
 package cryptu
 
-import "fmt"
+import "errors"
 
 // TODO: need *base64.Encoding struct - using 2 different encodings
 
 // Key represents the symmetric encryption key used in
 // operations by this package.
 type Key interface {
-	// Bytes returns the encryption key byte slice. The
-	// slice must have a length of either 16, 24, or 32 .
+	// Bytes returns the encryption key byte slice.
 	Bytes() []byte
 }
 
 // key is an implementation of Key
 type key []byte
 
-// NewStrKey creates a new Key from a string. The string
-// must be 16, 24, or 32 bytes long, otherwise an error
-// is returned.
+// NewStrKey creates a new Key from a string.
 func NewStrKey(str string) (Key, error) {
 	return NewKey([]byte(str))
 }
 
-// NewKey returns a new Key from a byte slice. The slice must
-// be 16, 24, or 32 bytes long.
+// NewKey returns a new Key from a byte slice.
 func NewKey(val []byte) (Key, error) {
-	switch len(val) {
-	case 16:
-		fallthrough
-	case 24:
-		fallthrough
-	case 32:
-		return key(val), nil
+	if len(val) == 0 {
+		return nil, errors.New("cryptu:NewKey cipher key must not be 0 length")
 	}
 
-	return nil, fmt.Errorf("cryptu:NewKey cipher key must be 16, 24, or 32 bytes long, but got a key that was %v bytes long", len(val))
+	valInternal := make([]byte, len(val))
+	copy(valInternal, val)
+
+	return key(valInternal), nil
 }
 
 func (k key) Bytes() []byte { return []byte(k) }

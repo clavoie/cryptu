@@ -1,16 +1,11 @@
 package cryptu
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/rand"
 	"encoding/base64"
-	"errors"
-	"io"
 )
 
 // Base64 symmetrically encrypts / decrypts strings to and from
-// base64 encoded values using AES.
+// base64 encoded values.
 type Base64 interface {
 	// Decrypt decrypts a base64 encoded value and returns the decrypted
 	// value.
@@ -23,57 +18,40 @@ type Base64 interface {
 
 // base64Impl is an implementation of the Base64 interface.
 type base64Impl struct {
-	key Key
+	cipher   Symmetric
+	encoding *base64.Encoding
 }
 
 // NewBase64 returns a new implementation instance of Base64.
-func NewBase64(key Key) Base64 {
+func NewBase64(cipher Symmetric, encoding Base64Encoding) Base64 {
 	return &base64Impl{
-		key: key,
+		cipher:   cipher,
+		encoding: encoding.Encoding(),
 	}
 }
 
 func (b *base64Impl) Decrypt(value string) (string, error) {
-	block, err := aes.NewCipher(b.key.Bytes())
+	btext, err := b.encoding.DecodeString(value)
 
 	if err != nil {
 		return "", err
 	}
 
-	btext, err := base64.URLEncoding.DecodeString(value)
+	decryptedBytes, err := b.cipher.Decrypt([]byte(btext))
 
 	if err != nil {
 		return "", err
 	}
 
-	if len(btext) < aes.BlockSize {
-		return "", errors.New("cryptu: ciphertext too short")
-	}
-
-	iv := btext[:aes.BlockSize]
-	btext = btext[aes.BlockSize:]
-	cfb := cipher.NewCFBDecrypter(block, iv)
-	cfb.XORKeyStream(btext, btext)
-
-	return string(btext), nil
+	return string(decryptedBytes), nil
 }
 
-func (b *base64Impl) Encrypt(encryptedValue string) (string, error) {
-	block, err := aes.NewCipher(b.key.Bytes())
+func (b *base64Impl) Encrypt(value string) (string, error) {
+	encryptedValue, err := b.cipher.Encrypt([]byte(value))
 
 	if err != nil {
 		return "", err
 	}
 
-	ciphertext := make([]byte, aes.BlockSize+len(encryptedValue))
-	iv := ciphertext[:aes.BlockSize]
-
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		return "", err
-	}
-
-	cfb := cipher.NewCFBEncrypter(block, iv)
-	cfb.XORKeyStream(ciphertext[aes.BlockSize:], []byte(encryptedValue))
-
-	return base64.URLEncoding.EncodeToString(ciphertext), nil
+	return b.encoding.EncodeToString([]byte(encryptedValue)), nil
 }
