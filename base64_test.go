@@ -47,13 +47,12 @@ func TestBase64(t *testing.T) {
 		if err != nil {
 			t.Fatal("Not base64 encoded", encrypted, err)
 		}
+
+		_, err = encoder.Encrypt("")
+		if err != nil {
+			t.Fatal(err)
+		}
 	})
-
-	// encryptedSecret, err := encoder.Encrypt(secret)
-
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	t.Run("DecryptNotBase64", func(t *testing.T) {
 		_, err := encoder.Decrypt("bad text")
