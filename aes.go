@@ -74,5 +74,5 @@ func (a *aesImpl) Encrypt(value []byte) ([]byte, error) {
 	cfb := cipher.NewCFBEncrypter(block, iv)
 	cfb.XORKeyStream(ciphertext[aes.BlockSize:], value)
 
-	return value, nil
+	return ciphertext, nil
 }
