@@ -1,8 +1,10 @@
 # cryptu [![GoDoc](https://godoc.org/github.com/clavoie/cryptu?status.svg)](http://godoc.org/github.com/clavoie/cryptu) [![Build Status](https://travis-ci.org/clavoie/cryptu.svg?branch=master)](https://travis-ci.org/clavoie/cryptu) [![codecov](https://codecov.io/gh/clavoie/cryptu/branch/master/graph/badge.svg)](https://codecov.io/gh/clavoie/cryptu) [![Go Report Card](https://goreportcard.com/badge/github.com/clavoie/cryptu)](https://goreportcard.com/report/github.com/clavoie/cryptu)
 
-Injectable base64 symmetric encryption wrappers for Go.
+Encryption wrappers for Go. Currently only base64 symmetric encryption wrappers, with hooks to be used by a dependency injection system.
 
-## Base64 Encoding
+## Encrypt To Base64
+
+The package level functions `EncryptToBase64` and `DecryptFromBase64` use the `crypto/aes` package for encryption and `encoding/base64.StdEncoding` for the encoding. 
 
 ```go
 // keys must be 16, 24, or 32 in length
@@ -48,8 +50,8 @@ func NewKey() (cryptu.Key, error)                 { return cryptu.NewStrKey(os.G
 func NewEncoding() (cryptu.Base64Encoding, error) { return cryptu.NewBase64Encoding(base64.StdEncoding) }
 
 var defs = []*di.Def{
-	{NewKey, di.Singleton},
-	{NewEncoding, di.Singleton},
+    {NewKey, di.Singleton},
+    {NewEncoding, di.Singleton},
 }
 
 func MyHandler(encoder cryptu.Base64) {
