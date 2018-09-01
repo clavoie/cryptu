@@ -28,6 +28,8 @@ func newDefaultBase64(cryptKey string) (Base64, error) {
 
 // EncryptToBase64 takes a plain text string, encrypts it using AES, and returns
 // the base64 encoded version of the string using encoding/base64.StdEncoding.
+//
+// cryptKey must be 16, 24, or 32 bytes long
 func EncryptToBase64(cryptKey, text string) (string, error) {
 	encrypter, err := newDefaultBase64(cryptKey)
 
@@ -40,7 +42,8 @@ func EncryptToBase64(cryptKey, text string) (string, error) {
 
 // DecryptFromBase64 takes a string encoded with EncryptToBase64
 // unencodes it, decrypts it, and returns the plaintext string using
-// encoding/base64.StdEncoding.
+// encoding/base64.StdEncoding. cryptKey must be 16, 24, or 32
+// bytes long.
 func DecryptFromBase64(cryptKey, text string) (string, error) {
 	decrypter, err := newDefaultBase64(cryptKey)
 
