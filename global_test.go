@@ -19,6 +19,26 @@ func TestGlobal(t *testing.T) {
 		}
 	})
 
+	t.Run("EncodingFailure", func(t *testing.T) {
+		encodingBackup := base64.StdEncoding
+		defer func() {
+			base64.StdEncoding = encodingBackup
+		}()
+
+		base64.StdEncoding = nil
+		key := strings.Repeat("a", 16)
+		secret := "myt secret"
+
+		encryptedValue, err := cryptu.EncryptToBase64(key, secret)
+		if err == nil {
+			t.Fatal("Was expecting err")
+		}
+
+		if encryptedValue != "" {
+			t.Fatal("Was expecting empty string")
+		}
+	})
+
 	t.Run("EncryptDecrypt", func(t *testing.T) {
 		key := strings.Repeat("a", 16)
 		secret := "myt secret"

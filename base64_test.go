@@ -2,11 +2,21 @@ package cryptu_test
 
 import (
 	"encoding/base64"
+	"errors"
 	"strings"
 	"testing"
 
 	"github.com/clavoie/cryptu"
 )
+
+type badSymmetric struct{}
+
+func (bs *badSymmetric) Encrypt(v []byte) ([]byte, error) {
+	return nil, errors.New("bad symmetric encrypt")
+}
+func (bs *badSymmetric) Decrypt(v []byte) ([]byte, error) {
+	return nil, errors.New("bad symmetric decrypt")
+}
 
 func TestBase64(t *testing.T) {
 	validKey, err := cryptu.NewStrKey(strings.Repeat("a", 16))
@@ -51,6 +61,19 @@ func TestBase64(t *testing.T) {
 		_, err = encoder.Encrypt("")
 		if err != nil {
 			t.Fatal(err)
+		}
+	})
+
+	t.Run("EncryptFailure", func(t *testing.T) {
+		encoder := cryptu.NewBase64(new(badSymmetric), encoding)
+
+		val, err := encoder.Encrypt("test 123")
+		if err == nil {
+			t.Fatal("Was expecting err")
+		}
+
+		if val != "" {
+			t.Fatal("Was expecting empty str", val)
 		}
 	})
 
